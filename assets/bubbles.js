@@ -167,11 +167,15 @@
     var outGrp = SECTORS.filter(function (s) { return s.flow < 0; })
       .sort(function (a, b) { return Math.abs(b.flow) - Math.abs(a.flow); });
 
-    // 环绕轨道半径（占画布宽比例，动态适配板块数量，资金量大的靠内）
+    // 环绕轨道半径（占画布宽比例，5 层分布，最大 0.28 保证气泡与光晕不超画布边界）
     function radiiFor(n) {
+      var layers = 5;
+      var per = Math.max(1, Math.ceil(n / layers));
       var arr = [];
-      var step = n > 12 ? 0.012 : 0.05;
-      for (var i = 0; i < n; i++) arr.push(0.13 + i * step);
+      for (var i = 0; i < n; i++) {
+        var layer = Math.min(layers - 1, Math.floor(i / per));
+        arr.push(0.14 + layer * 0.035);
+      }
       return arr;
     }
 
@@ -413,9 +417,9 @@
       var f = flowAt(b, now);
       b.f = f;
 
-      // 气泡大小（按当前资金量）
+      // 气泡大小（按当前资金量，上限收紧避免贴边）
       var ratio = Math.sqrt(Math.abs(f) / MAX_ABS);
-      b.r = 12 + ratio * Math.min(42, H * 0.13);
+      b.r = 12 + ratio * Math.min(30, H * 0.10);
 
       var tx, ty;
       if (b.fixed) {
