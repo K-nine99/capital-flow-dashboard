@@ -339,16 +339,30 @@
     ctx.arc(x - r * 0.34, y - r * 0.4, Math.max(1.5, r * 0.13), 0, Math.PI * 2);
     ctx.fill();
 
-    // 板块名（楷书字体）
-    var fs = Math.max(10, r * 0.28);
+    // 板块名（楷书，字号随气泡大小自适应，文本不超出气泡边界）
+    var fs = Math.max(8, Math.min(17, r * 0.34));
+    var nameTxt = shortName(b.s.name);
+    var maxW = Math.max(14, r * 1.35); // 文本最大宽度（气泡内径留边距）
     ctx.font = '700 ' + fs + 'px "KaiTi","STKaiti","楷体","Kaiti SC",serif';
+    while (ctx.measureText(nameTxt).width > maxW && fs > 7) {
+      fs -= 1;
+      ctx.font = '700 ' + fs + 'px "KaiTi","STKaiti","楷体","Kaiti SC",serif';
+    }
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(255,255,255,0.88)';
-    ctx.fillText(shortName(b.s.name), x, y - fs * 0.58);
-    ctx.font = (fs * 0.82) + 'px GeistMono,monospace';
+    ctx.fillText(nameTxt, x, y - fs * 0.58);
+
+    // 金额（等宽字体，同样按气泡大小与边界适配）
+    var fs2 = fs * 0.78;
+    ctx.font = fs2 + 'px GeistMono,monospace';
+    var amtTxt = (f >= 0 ? '+' : '') + fmtYi(f);
+    while (ctx.measureText(amtTxt).width > maxW && fs2 > 6) {
+      fs2 -= 0.5;
+      ctx.font = fs2 + 'px GeistMono,monospace';
+    }
     ctx.fillStyle = 'rgba(255,255,255,0.78)';
-    ctx.fillText((f >= 0 ? '+' : '') + fmtYi(f), x, y + fs * 0.6);
+    ctx.fillText(amtTxt, x, y + fs * 0.6);
   }
 
   /* ================= 碰撞分离（防重叠，保证文字可读） ================= */
