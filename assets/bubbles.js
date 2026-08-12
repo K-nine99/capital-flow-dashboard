@@ -446,7 +446,7 @@
 
     // 更新气泡轨道运动：最大板块固定中心，其余板块沿椭圆轨道环绕
     var sumIn = 0, sumOut = 0, nIn = 0, nOut = 0;
-    var ORBIT_SPEED = Math.PI * 2 * 6 / TRADE_LEN; // 6 圈 / 交易日（放缓环绕速度）
+    var ORBIT_SPEED = Math.PI * 2 * 2 / TRADE_LEN; // 2 圈 / 交易日（高倍速下降低环绕速度，便于看清板块）
     bubbles.forEach(function (b) {
       var f = flowAt(b, now);
       b.f = f;
