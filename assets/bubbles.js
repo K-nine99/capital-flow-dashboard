@@ -167,14 +167,14 @@
     var outGrp = SECTORS.filter(function (s) { return s.flow < 0; })
       .sort(function (a, b) { return Math.abs(b.flow) - Math.abs(a.flow); });
 
-    // 环绕轨道半径（占画布宽比例，5 层分布，最大 0.28 保证气泡与光晕不超画布边界）
+    // 环绕轨道半径（占画布宽比例，5 层分布：从 0.20 起环绕，与居中大板块保持间距，最大 0.28 不超边界）
     function radiiFor(n) {
       var layers = 5;
       var per = Math.max(1, Math.ceil(n / layers));
       var arr = [];
       for (var i = 0; i < n; i++) {
         var layer = Math.min(layers - 1, Math.floor(i / per));
-        arr.push(0.14 + layer * 0.035);
+        arr.push(0.20 + layer * 0.02);
       }
       return arr;
     }
@@ -201,8 +201,8 @@
       });
     }
 
-    pushGroup(inGrp, radiiFor(inGrp.length - 1), 0.30, true);   // 水上中心
-    pushGroup(outGrp, radiiFor(outGrp.length - 1), 0.72, true); // 水下中心
+    pushGroup(inGrp, radiiFor(inGrp.length - 1), 0.30, true);   // 水上中心：最大流入板块居中
+    pushGroup(outGrp, radiiFor(outGrp.length - 1), 0.70, true); // 水下中心：最大流出板块居中
   }
 
   /* ================= 日内演化 ================= */
@@ -417,9 +417,9 @@
       var f = flowAt(b, now);
       b.f = f;
 
-      // 气泡大小（按当前资金量，上限收紧避免贴边）
+      // 气泡大小（按当前资金量：最大板块居中突出，上限收紧避免贴边）
       var ratio = Math.sqrt(Math.abs(f) / MAX_ABS);
-      b.r = 12 + ratio * Math.min(30, H * 0.10);
+      b.r = 12 + ratio * Math.min(38, H * 0.12);
 
       var tx, ty;
       if (b.fixed) {
