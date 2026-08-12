@@ -339,19 +339,37 @@
     ctx.arc(x - r * 0.34, y - r * 0.4, Math.max(1.5, r * 0.13), 0, Math.PI * 2);
     ctx.fill();
 
-    // 板块名（楷书，字号随气泡大小自适应，文本不超出气泡边界）
-    var fs = Math.max(8, Math.min(17, r * 0.34));
-    var nameTxt = shortName(b.s.name);
+    // 板块名（楷书，显示全称，字号随气泡大小自适应，不超出气泡边界，超长自动分行）
+    var fs = Math.max(7, Math.min(17, r * 0.34));
+    var nameTxt = b.s.name;
     var maxW = Math.max(14, r * 1.35); // 文本最大宽度（气泡内径留边距）
+    var twoLines = false;
     ctx.font = '700 ' + fs + 'px "KaiTi","STKaiti","楷体","Kaiti SC",serif';
-    while (ctx.measureText(nameTxt).width > maxW && fs > 7) {
+    while (ctx.measureText(nameTxt).width > maxW && fs > 6) {
       fs -= 1;
       ctx.font = '700 ' + fs + 'px "KaiTi","STKaiti","楷体","Kaiti SC",serif';
     }
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(255,255,255,0.88)';
-    ctx.fillText(nameTxt, x, y - fs * 0.58);
+    if (ctx.measureText(nameTxt).width > maxW && nameTxt.length > 2) {
+      // 全称过长且已到最小字号 → 拆成两行显示（仍为全称）
+      var mid = Math.ceil(nameTxt.length / 2);
+      var line1 = nameTxt.slice(0, mid);
+      var line2 = nameTxt.slice(mid);
+      while ((ctx.measureText(line1).width > maxW || ctx.measureText(line2).width > maxW) && fs > 6) {
+        fs -= 1;
+        ctx.font = '700 ' + fs + 'px "KaiTi","STKaiti","楷体","Kaiti SC",serif';
+      }
+      twoLines = true;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,255,255,0.88)';
+      ctx.fillText(line1, x, y - fs * 0.95);
+      ctx.fillText(line2, x, y + fs * 0.15);
+    } else {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,255,255,0.88)';
+      ctx.fillText(nameTxt, x, y - fs * 0.58);
+    }
 
     // 金额（等宽字体，同样按气泡大小与边界适配）
     var fs2 = fs * 0.78;
@@ -362,7 +380,7 @@
       ctx.font = fs2 + 'px GeistMono,monospace';
     }
     ctx.fillStyle = 'rgba(255,255,255,0.78)';
-    ctx.fillText(amtTxt, x, y + fs * 0.6);
+    ctx.fillText(amtTxt, x, y + (twoLines ? fs * 0.95 : fs * 0.6));
   }
 
   /* ================= 碰撞分离（防重叠，保证文字可读） ================= */
