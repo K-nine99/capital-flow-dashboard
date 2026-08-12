@@ -60,8 +60,10 @@ body {
 
 /* === 9:16 竖屏 UI：整页以 9:16 比例呈现（顶栏 + 画布 + 时间条同宽居中） === */
 :root {
-  --ui-w: min(100vw, calc((100vh - 190px) * 9 / 16));
+  --ui-w: min(100vw, calc((100dvh - 190px) * 9 / 16)); /* 移动端动态视口高度优先 */
+  --ui-w: min(100vw, calc((100vh - 190px) * 9 / 16));  /* 不支持 dvh 时的回退 */
 }
+body { overflow-x: hidden; }
 .topbar, .timeline, #main-scene { width: var(--ui-w); margin-left: auto; margin-right: auto; }
 #main-scene {
   flex: none;
@@ -315,6 +317,21 @@ body.portrait-mode .tl-range { order: 2; flex: 1 1 100%; height: 4px; }
 body.portrait-mode .tl-range::-webkit-slider-thumb { width: 12px; height: 12px; }
 body.portrait-mode .tl-speed { display: none; }
 body.portrait-mode .tl-meta { display: none; }
+
+/* === 窄屏手机（≤390px）进一步紧凑 === */
+@media (max-width: 390px) {
+  body.portrait-mode .brand { font-size: 0.8rem; }
+  body.portrait-mode .brand .logo { width: 20px; height: 20px; font-size: 0.66rem; }
+  body.portrait-mode .idx-chip .n { font-size: 0.54rem; }
+  body.portrait-mode .idx-chip .v { font-size: 0.66rem; }
+  body.portrait-mode .idx-chip .c { font-size: 0.58rem; }
+  body.portrait-mode .zone-head.in { padding-right: 128px; }
+  body.portrait-mode .zone-head .t { font-size: 0.78rem; }
+  body.portrait-mode .zone-head .sum { font-size: 0.74rem; }
+  body.portrait-mode .time-progress { min-width: 94px; padding: 0.24rem 0.42rem 0.28rem; }
+  body.portrait-mode .tp-time { font-size: 0.78rem; }
+  body.portrait-mode .tp-date { font-size: 0.54rem; }
+}
 </style>
 </head>
 <body>
