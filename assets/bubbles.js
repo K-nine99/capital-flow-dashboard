@@ -115,7 +115,7 @@
   /* ================= 状态 ================= */
   var MAX_ABS = 169.27; // 5G 概念，全市场最大资金量
   var playing = true;
-  var speed = 4;
+  var speed = 22; // 默认 22x：开盘→收盘约 15 秒
   var tMin = 0;
   var lastTs = 0;
   var time = 0; // 动画时间（秒），用于波浪/漂移
