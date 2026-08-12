@@ -163,9 +163,11 @@
   function buildBubbles() {
     bubbles = [];
     var inGrp = SECTORS.filter(function (s) { return s.flow > 0; })
-      .sort(function (a, b) { return b.flow - a.flow; });
+      .sort(function (a, b) { return b.flow - a.flow; })
+      .slice(0, 10); // 流入取排名前 10（不足 10 取实际数量）
     var outGrp = SECTORS.filter(function (s) { return s.flow < 0; })
-      .sort(function (a, b) { return Math.abs(b.flow) - Math.abs(a.flow); });
+      .sort(function (a, b) { return Math.abs(b.flow) - Math.abs(a.flow); })
+      .slice(0, 10); // 流出取排名前 10（不足 10 取实际数量）
 
     // 环绕轨道半径（占画布宽比例，5 层分布：从 0.20 起环绕，与居中大板块保持间距，最大 0.28 不超边界）
     function radiiFor(n) {
