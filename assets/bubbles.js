@@ -340,7 +340,7 @@
     ctx.fill();
 
     // 板块名（楷书，显示全称，字号随气泡大小自适应，不超出气泡边界，超长自动分行）
-    var fs = Math.max(7, Math.min(17, r * 0.34));
+    var fs = Math.max(7, Math.min(15, r * 0.26));
     var nameTxt = b.s.name;
     var maxW = Math.max(14, r * 1.35); // 文本最大宽度（气泡内径留边距）
     var twoLines = false;
@@ -371,16 +371,16 @@
       ctx.fillText(nameTxt, x, y - fs * 0.58);
     }
 
-    // 金额（等宽字体，同样按气泡大小与边界适配）
-    var fs2 = fs * 0.78;
+    // 金额（等宽字体，随气泡动态放大——气泡变大数字同步变大，突出显示）
+    var fs2 = Math.max(8, Math.min(24, r * 0.36));
     ctx.font = fs2 + 'px GeistMono,monospace';
     var amtTxt = (f >= 0 ? '+' : '') + fmtYi(f);
     while (ctx.measureText(amtTxt).width > maxW && fs2 > 6) {
       fs2 -= 0.5;
       ctx.font = fs2 + 'px GeistMono,monospace';
     }
-    ctx.fillStyle = 'rgba(255,255,255,0.78)';
-    ctx.fillText(amtTxt, x, y + (twoLines ? fs * 0.95 : fs * 0.6));
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.fillText(amtTxt, x, y + (twoLines ? fs * 1.0 : fs * 0.62));
   }
 
   /* ================= 碰撞分离（防重叠，保证文字可读） ================= */
