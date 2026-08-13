@@ -442,10 +442,8 @@
       lastTs = ts;
       tMin += dt * speed;
       if (tMin >= TRADE_LEN) {
-        tMin = TRADE_LEN;
-        playing = false;
-        btnPlay.textContent = '▶';
-        btnPlay.classList.remove('playing');
+        tMin = 0;          // 循环播放：播完自动重播，保证指数/板块始终可见动态变化
+        lastLegMin = -100; // 重播首帧立即刷新指数条与板块标签
       }
     } else {
       lastTs = 0;
