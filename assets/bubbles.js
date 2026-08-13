@@ -114,6 +114,7 @@
 
   /* ================= 状态 ================= */
   var MAX_ABS = 143.15; // 有色金属，全市场最大资金量（净流出）
+  var lastLegMin = -100; // 上次刷新板块标签的盘中时间（分钟），-100 保证首帧即刷新
   var playing = true;
   var speed = 22; // 默认 22x：开盘→收盘约 15 秒
   var tMin = 0;
@@ -495,6 +496,12 @@
     elOutSum.textContent = sumOut.toFixed(2) + ' 亿';
     elOutCnt.textContent = nOut + ' 个';
 
+    // 上方流入 / 下方流出板块标签随日内时间动态变化（盘中每 10 分钟刷新一次排名）
+    if (now - lastLegMin >= 10) {
+      lastLegMin = now;
+      renderLegend();
+    }
+
     // 时间轴
     var timeTxt = timeFmt(TRADE_START + now);
     tlTime.textContent = timeTxt;
@@ -564,19 +571,26 @@
     }
   });
 
-  /* ================= 顶部指数条 / 底部板块标签 ================= */
+  /* ================= 顶部指数条 / 板块标签 ================= */
+  // 板块标签（上方流入 / 下方流出 各前 6）：随日内时间动态更新排名
+  // 盘中以气泡当前资金量计算，盘前（bubbles 未构建）回退到收盘数据
+  function renderLegend() {
+    var pool = bubbles.length ? bubbles : SECTORS.map(function (s) { return { f: s.flow, s: s }; });
+    var inTop = pool.filter(function (b) { return b.f >= 0; })
+      .sort(function (a, b) { return b.f - a.f; }).slice(0, 6);
+    var outTop = pool.filter(function (b) { return b.f < 0; })
+      .sort(function (a, b) { return Math.abs(b.f) - Math.abs(a.f); }).slice(0, 6);
+    elInLeg.innerHTML = inTop.map(function (b) { return '<span style="color:#ff8a83">' + b.s.name + '</span>'; }).join('');
+    elOutLeg.innerHTML = outTop.map(function (b) { return '<span style="color:#6fd8a5">' + b.s.name + '</span>'; }).join('');
+  }
+
   function renderChrome() {
     elIdx.innerHTML = INDICES.map(function (d) {
       var cls = d.c > 0 ? 'up-txt' : (d.c < 0 ? 'down-txt' : '');
       return '<div class="idx-chip"><span class="n">' + d.n + '</span><span class="v">' + d.v + '</span><span class="c ' + cls + '">' + (d.c > 0 ? '+' : '') + d.c.toFixed(2) + '%</span></div>';
     }).join('');
 
-    var inTop = SECTORS.filter(function (s) { return s.flow > 0; })
-      .sort(function (a, b) { return b.flow - a.flow; }).slice(0, 6);
-    var outTop = SECTORS.filter(function (s) { return s.flow < 0; })
-      .sort(function (a, b) { return Math.abs(b.flow) - Math.abs(a.flow); }).slice(0, 6);
-    elInLeg.innerHTML = inTop.map(function (s) { return '<span style="color:#ff8a83">' + s.name + '</span>'; }).join('');
-    elOutLeg.innerHTML = outTop.map(function (s) { return '<span style="color:#6fd8a5">' + s.name + '</span>'; }).join('');
+    renderLegend();
   }
 
   /* ================= 启动 ================= */
