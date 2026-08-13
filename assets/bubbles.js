@@ -230,6 +230,15 @@
     return ty;
   }
 
+  // 指数盘中演化：按日内累积曲线从开盘价平滑过渡到收盘价，涨跌幅从 0 渐变到收盘值
+  // now 为盘中分钟偏移（0~330），收盘时（curveAt=1）指数回到真实收盘价与收盘涨跌幅
+  function indexAt(d, now) {
+    var pct = d.c * curveAt(now);
+    var open = d.v / (1 + d.c / 100);
+    var price = open * (1 + pct / 100);
+    return { price: price, pct: pct };
+  }
+
   /* ================= 背景绘制 ================= */
   function drawBackground(nowSec) {
     // 水上（空气层）：暗色微红
@@ -496,9 +505,10 @@
     elOutSum.textContent = sumOut.toFixed(2) + ' 亿';
     elOutCnt.textContent = nOut + ' 个';
 
-    // 上方流入 / 下方流出板块标签随日内时间动态变化（盘中每 10 分钟刷新一次排名）
+    // 上方指数条与板块标签随日内时间动态变化（盘中每 10 分钟刷新一次）
     if (now - lastLegMin >= 10) {
       lastLegMin = now;
+      renderIndices(now);
       renderLegend();
     }
 
@@ -584,12 +594,17 @@
     elOutLeg.innerHTML = outTop.map(function (b) { return '<span style="color:#6fd8a5">' + b.s.name + '</span>'; }).join('');
   }
 
-  function renderChrome() {
+  // 顶部指数条：随日内时间动态显示盘中点位与涨跌幅（开盘 0% 平滑过渡到收盘值）
+  function renderIndices(now) {
     elIdx.innerHTML = INDICES.map(function (d) {
-      var cls = d.c > 0 ? 'up-txt' : (d.c < 0 ? 'down-txt' : '');
-      return '<div class="idx-chip"><span class="n">' + d.n + '</span><span class="v">' + d.v + '</span><span class="c ' + cls + '">' + (d.c > 0 ? '+' : '') + d.c.toFixed(2) + '%</span></div>';
+      var it = indexAt(d, now);
+      var cls = it.pct > 0 ? 'up-txt' : (it.pct < 0 ? 'down-txt' : '');
+      return '<div class="idx-chip"><span class="n">' + d.n + '</span><span class="v">' + it.price.toFixed(2) + '</span><span class="c ' + cls + '">' + (it.pct > 0 ? '+' : '') + it.pct.toFixed(2) + '%</span></div>';
     }).join('');
+  }
 
+  function renderChrome() {
+    renderIndices(0);
     renderLegend();
   }
 
