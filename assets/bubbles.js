@@ -238,8 +238,9 @@
   }
 
   /* ================= 日内演化 ================= */
-  // 板块当日资金轨迹：真实分时驱动（板块概念指数分时 → 当日进度 0~1）
-  // 盘中资金流 = 收盘主力净流入 × 板块指数进度 (p-p0)/(pe-p0)，收盘精确回到收盘值
+  // 板块当日资金轨迹：真实分时驱动（板块概念指数分时 → 当日进度）
+  // 盘中资金流 = 收盘主力净流入 × 进度，进度 = |p-p0|/|pe-p0|（方向与收盘一致，
+  // 强度随板块指数盘中波动真实变化），收盘精确回到收盘值
   // 未单独收录的板块用上证指数分时作为真实市场节奏代理
   function flowAt(b, now) {
     var arr = SECTOR_TREND[b.s.name] || INTRADAY['上证指数'];
@@ -251,7 +252,7 @@
     var p0 = arr[0][1], pe = arr[arr.length - 1][1];
     var d = pe - p0;
     if (Math.abs(d) < 1e-6) return b.s.flow * curveAt(now); // 板块指数几乎平盘
-    return b.s.flow * ((seriesAt(arr, now) - p0) / d);
+    return b.s.flow * (Math.abs(seriesAt(arr, now) - p0) / Math.abs(d));
   }
 
   // 平衡深度：按资金量大小决定离水面的距离（资金越大浮得越高/沉得越深）
